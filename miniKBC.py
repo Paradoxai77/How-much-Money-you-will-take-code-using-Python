@@ -130,13 +130,13 @@ def use_lifeline(q, ans):
     
     if choice == "50:50" and lifelines["50:50"]:
         lifelines["50:50"] = False
-        wrong = [opt for opt in ['A', 'B', 'C', 'D'] if opt != ans]
+        wrong = [opt[0] for opt in q["options"] if opt[0] != ans]
         removed = random.sample(wrong, 2)
         print("\n50:50 Lifeline: Remaining options:")
         for opt in q["options"]:
             if opt[0] not in removed:
                 print(opt)
-
+    
     elif choice == "Audience Poll" and lifelines["Audience Poll"]:
         lifelines["Audience Poll"] = False
         print("Audience Poll suggests:", ans)
@@ -155,37 +155,44 @@ def use_lifeline(q, ans):
 
 
 score = 0
-prize_money = [1000]
-asked = []
-for i in range(10):  # Random 10 questions
+prize_money = [0]
+questions_asked = 0
+
+
+while questions_asked < 10:
+    if not questions:
+        print("No more questions left!")
+        break
+        
     q = random.choice(questions)
     questions.remove(q)
-    print(f"i+1: {q['question']}")
+    
+    print(f"\nQuestion {questions_asked + 1}: {q['question']}")
     for opt in q["options"]:
         print(opt)
     
     lifeline_result = use_lifeline(q, q["answer"])
     if lifeline_result == "flip":
-        continue  # skip question
-
-    print("You have 4 minutes to answer...")
+        continue  
+    print("You have 20 seconds to answer...")
     start_time = time.time()
-    while True:
-        if time.time() - start_time > 20:
-            print("Time's up!")
-            break
-        answer = input("Your answer (A/B/C/D): ").strip().upper()
-        if answer in ['A', 'B', 'C', 'D']:
-            break
+    
+    # Simple input logic
+    answer = input("Your answer (A/B/C/D): ").strip().upper()
+    
+    if time.time() - start_time > 20:
+        print("Time's up!")
+        break
 
-    end = time.time()
-
-    if answer.upper() == q['answer']:
+    if answer == q['answer']:
+        score += 1
         prize_money.append(prize_money[-1] * 2)
         print(f"Correct! You won ₹{prize_money[-1]}")
     else:
-        print("Wrong answer. Game over.")
+        print(f"Wrong answer. The correct answer was {q['answer']}. Game over.")
         break
+    
+    questions_asked += 1
 
-print(f"Your total winning amount: ₹{prize_money[-1]}")
-print(f"\nTotal Correct Answers: {score}")
+print(f"\nYour total winning amount: ₹{prize_money[-1]}")
+print(f"Total Correct Answers: {score}")
